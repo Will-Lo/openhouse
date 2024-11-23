@@ -25,11 +25,11 @@ singleStatement
 statement
   : ALTER TABLE multipartIdentifier SET POLICY '(' retentionPolicy (columnRetentionPolicy)? ')'        #setRetentionPolicy
   | ALTER TABLE multipartIdentifier SET POLICY '(' sharingPolicy ')'                                   #setSharingPolicy
-  | ALTER TABLE multipartIdentifier SET POLICY '(' snapshotsRetentionPolicy ')'                        #setSnapshotsRetentionPolicy
+  | ALTER TABLE multipartIdentifier SET POLICY snapshotsRetentionPolicy                                #setSnapshotsRetentionPolicy
   | ALTER TABLE multipartIdentifier MODIFY columnNameClause SET columnPolicy                           #setColumnPolicyTag
   | GRANT privilege ON grantableResource TO principal                                                  #grantStatement
   | REVOKE privilege ON grantableResource FROM principal                                               #revokeStatement
-  | SHOW GRANTS ON grantableResource       #showGrantsStatement
+  | SHOW GRANTS ON grantableResource                                                                   #showGrantsStatement
   ;
 
 multipartIdentifier
@@ -65,7 +65,7 @@ quotedIdentifier
     ;
 
 nonReserved
-    : ALTER | TABLE | SET | POLICY | RETENTION | SHARING | SNAPSHOTS_RETENTION
+    : ALTER | TABLE | SET | POLICY | RETENTION | SHARING | RETAIN_SNAPSHOTS
     | GRANT | REVOKE | ON | TO | SHOW | GRANTS | PATTERN | WHERE | COLUMN
     ;
 
@@ -76,6 +76,11 @@ sharingPolicy
 BOOLEAN
     : 'TRUE' | 'FALSE'
     ;
+
+AND_OR_LOGICAL_OPERATOR
+    : 'AND' | 'OR'
+    ;
+
 retentionPolicy
     : RETENTION '=' duration
     ;
@@ -133,24 +138,22 @@ policyTag
     ;
 
 snapshotsRetentionPolicy
-    : SNAPSHOTS_RETENTION snapshotsCombinedRetention
-    ;
-
-snapshotsCombinedRetention
-    : snapshotsTTL (snapshotsCount)?
+    : RETAIN_SNAPSHOTS snapshotsTTL
+    | RETAIN_SNAPSHOTS snapshotsCount
+    | RETAIN_SNAPSHOTS snapshotsTTL AND_OR_LOGICAL_OPERATOR snapshotsCount
     ;
 
 snapshotsTTL
-    : TTL '=' snapshotsTTLValue
+    : dateGranularity'='POSITIVE_INTEGER
     ;
 
 snapshotsCount
-    : COUNT '=' POSITIVE_INTEGER
+    : COUNT'='POSITIVE_INTEGER
     ;
 
-snapshotsTTLValue
-    : RETENTION_DAY
-    | RETENTION_HOUR
+dateGranularity
+    : 'DAYS'
+    | 'HOURS'
     ;
 
 ALTER: 'ALTER';
@@ -179,9 +182,9 @@ HC: 'HC';
 MODIFY: 'MODIFY';
 TAG: 'TAG';
 NONE: 'NONE';
+RETAIN_SNAPSHOTS: 'RETAIN SNAPSHOTS';
 TTL: 'TTL';
 COUNT: 'COUNT';
-SNAPSHOTS_RETENTION : 'SNAPSHOTS_RETENTION';
 
 POSITIVE_INTEGER
     : DIGIT+
