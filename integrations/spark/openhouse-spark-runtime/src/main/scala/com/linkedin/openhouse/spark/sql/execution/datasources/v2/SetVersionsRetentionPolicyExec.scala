@@ -1,5 +1,6 @@
 package com.linkedin.openhouse.spark.sql.execution.datasources.v2
 
+import com.linkedin.openhouse.spark.sql.catalyst.enums.LogicalOperators
 import com.linkedin.openhouse.spark.sql.catalyst.enums.LogicalOperators.LogicalOperatorsType
 import org.apache.iceberg.spark.source.SparkTable
 import org.apache.spark.sql.catalyst.InternalRow
@@ -7,7 +8,7 @@ import org.apache.spark.sql.catalyst.expressions.Attribute
 import org.apache.spark.sql.connector.catalog.{Identifier, TableCatalog}
 import org.apache.spark.sql.execution.datasources.v2.V2CommandExec
 
-case class SetSnapshotsRetentionPolicyExec(
+case class SetVersionsRetentionPolicyExec(
                                             catalog: TableCatalog,
                                             ident: Identifier,
                                             logicalOperator: Option[LogicalOperatorsType],
@@ -23,11 +24,10 @@ case class SetSnapshotsRetentionPolicyExec(
       case iceberg: SparkTable if iceberg.table().properties().containsKey("openhouse.tableId") =>
         val key = "updated.openhouse.policy"
         val value = {
-          (count) match {
-            case (0) => s"""{"snapshotsRetention":{"timeCount":${timeCount},"granularity":"${granularity}"}}"""
-            case (_) =>
-              s"""{"snapshotsRetention":{"timeCount":${timeCount}, "granularity":"${granularity}", "count":${count}}}"""
-          }
+          (timeCount, count, logicalOperator) match {
+            case ttlOnly if count == -1 => s"""{"versionsRetention":{"timeCount":${timeCount},"granularity":"${granularity.get}"}}"""
+            case countOnly if timeCount == -1 => s"""{"versionsRetention":{"count":${count}}}"""
+            case _ => s"""{"versionsRetention":{"timeCount":${timeCount},"granularity":"${granularity.get}","count":${count},"logicalOperator":${logicalOperator.get.toString}}}"""}
         }
 
         iceberg.table().updateProperties()
@@ -42,6 +42,6 @@ case class SetSnapshotsRetentionPolicyExec(
   }
 
   override def simpleString(maxFields: Int): String = {
-    s"SetSnapshotsRetentionPolicyExec: ${catalog} ${ident} ${timeCount} ${granularity} ${count}"
+    s"SetVersionsRetentionPolicyExec: ${catalog} ${ident} ${if (timeCount > 0) timeCount else ""} ${granularity.getOrElse("")} ${logicalOperator.getOrElse("")} count ${if (count > 0) count else ""}"
   }
 }
