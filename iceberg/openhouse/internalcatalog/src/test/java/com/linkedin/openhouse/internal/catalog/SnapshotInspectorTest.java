@@ -88,6 +88,7 @@ class SnapshotInspectorTest {
         () ->
             snapshotInspector.validateSnapshotsUpdate(
                 metadataWithSnapshots, testSnapshots, Collections.emptyList()));
+    System.out.println("testSnapshots: " + testSnapshots);
     // No validation error if snapshots are added and deleted
     Assertions.assertDoesNotThrow(
         () ->
