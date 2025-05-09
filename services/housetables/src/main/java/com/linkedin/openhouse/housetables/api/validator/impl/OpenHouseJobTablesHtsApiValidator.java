@@ -70,4 +70,9 @@ public class OpenHouseJobTablesHtsApiValidator implements HouseTablesApiValidato
     }
     // TODO: Add other validations for Job entity
   }
+
+  @Override
+  public void validateRenameEntity(JobKey fromKey, JobKey toKey) {
+    throw new UnsupportedOperationException("Rename operation is not supported for Job entity");
+  }
 }

@@ -223,6 +223,23 @@ public class OpenHouseTablesApiValidator implements TablesApiValidator {
     validateGetTable(databaseId, tableId);
   }
 
+  @Override
+  public void validateRenameTable(
+      String databaseId, String tableId, String newDatabaseId, String newTableId) {
+    List<String> validationFailures = new ArrayList<>();
+    validateDatabaseId(newDatabaseId, validationFailures);
+    validateTableId(newTableId, validationFailures);
+    if (!databaseId.equals(newDatabaseId)) {
+      validationFailures.add(
+          String.format(
+              "Cannot rename table %s across databases. Provided: %s, %s",
+              tableId, databaseId, newDatabaseId));
+    }
+    if (!validationFailures.isEmpty()) {
+      throw new RequestValidationFailureException(validationFailures);
+    }
+  }
+
   @SuppressWarnings("checkstyle:OperatorWrap")
   @Override
   public void validateUpdateAclPolicies(

@@ -185,6 +185,17 @@ public class HouseTableRepositoryImpl implements HouseTableRepository {
                     .block());
   }
 
+  public void rename(
+      String fromDatabaseId, String fromTableId, String toDatabaseId, String toTableId) {
+    getHtsRetryTemplate(Arrays.asList(IllegalStateException.class))
+        .execute(
+            context ->
+                apiInstance
+                    .renameTable(fromDatabaseId, fromTableId, toDatabaseId, toTableId)
+                    .onErrorResume(e -> handleHtsHttpError(e).then())
+                    .block());
+  }
+
   @Override
   public <S extends HouseTable> Iterable<S> saveAll(Iterable<S> entities) {
     throw new UnsupportedOperationException("saveAll is not supported.");

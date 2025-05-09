@@ -57,6 +57,20 @@ public interface TablesService {
   void deleteTable(String databaseId, String tableId, String actingPrincipal);
 
   /**
+   * Renames table
+   *
+   * @param databaseId
+   * @param tableId
+   * @param actingPrincipal
+   */
+  void renameTable(
+      String databaseId,
+      String tableId,
+      String newDatabaseId,
+      String newTableId,
+      String actingPrincipal);
+
+  /**
    * Update aclPolicy on a table represented by databaseId and tableId if actingPrincipal has the
    * right privilege.
    *

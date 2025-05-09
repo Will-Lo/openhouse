@@ -200,6 +200,26 @@ public class TablesServiceImpl implements TablesService {
   }
 
   @Override
+  public void renameTable(
+      String fromDatabaseId,
+      String fromTableId,
+      String toDatabaseId,
+      String toTableId,
+      String actingPrincipal) {
+    TableDtoPrimaryKey fromTableDtoPrimaryKey =
+        TableDtoPrimaryKey.builder().databaseId(fromDatabaseId).tableId(fromTableId).build();
+    Optional<TableDto> tableDto = openHouseInternalRepository.findById(fromTableDtoPrimaryKey);
+    if (!tableDto.isPresent()) {
+      throw new NoSuchUserTableException(fromDatabaseId, fromTableId);
+    }
+    // Perform authorization utils step
+    TableDtoPrimaryKey toTableDtoPrimaryKey =
+        TableDtoPrimaryKey.builder().databaseId(fromDatabaseId).tableId(toTableId).build();
+
+    openHouseInternalRepository.rename(fromTableDtoPrimaryKey, toTableDtoPrimaryKey);
+  }
+
+  @Override
   public void updateAclPolicies(
       String databaseId,
       String tableId,

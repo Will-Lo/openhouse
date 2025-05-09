@@ -6,6 +6,7 @@ import com.linkedin.openhouse.housetables.model.UserTableRowPrimaryKey;
 import com.linkedin.openhouse.housetables.repository.HtsRepository;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 /**
@@ -63,4 +64,9 @@ public interface UserTableHtsJdbcRepository
     deleteByDatabaseIdIgnoreCaseAndTableIdIgnoreCase(
         userTableRowPrimaryKey.getDatabaseId(), userTableRowPrimaryKey.getTableId());
   }
+
+  @Modifying
+  @Query(
+      "UPDATE UserTableRow SET tableId = :newTableId WHERE databaseId = :databaseId AND tableId = :oldTableId")
+  void renameTableId(String databaseId, String oldTableId, String newTableId);
 }

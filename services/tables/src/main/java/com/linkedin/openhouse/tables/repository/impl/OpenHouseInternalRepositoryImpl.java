@@ -561,6 +561,13 @@ public class OpenHouseInternalRepositoryImpl implements OpenHouseInternalReposit
     throw getUnsupportedException();
   }
 
+  @Override
+  public void rename(TableDtoPrimaryKey from, TableDtoPrimaryKey to) {
+    TableIdentifier fromTableId = TableIdentifier.of(from.getDatabaseId(), from.getTableId());
+    TableIdentifier toTableId = TableIdentifier.of(to.getDatabaseId(), to.getTableId());
+    catalog.renameTable(fromTableId, toTableId);
+  }
+
   private UnsupportedOperationException getUnsupportedException() {
     return new UnsupportedOperationException(
         "Only save, findById, existsById supported for OpenHouseCatalog");

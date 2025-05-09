@@ -71,6 +71,21 @@ public interface TablesApiHandler {
   ApiResponse<Void> deleteTable(String databaseId, String tableId, String actingPrincipal);
 
   /**
+   * Function to Delete a Table Resource identified by tableId in a given databaseId
+   *
+   * @param databaseId
+   * @param tableId
+   * @param actingPrincipal
+   * @return empty body on successful delete
+   */
+  ApiResponse<Void> renameTable(
+      String fromDatabaseId,
+      String fromTableId,
+      String toDatabaseId,
+      String toTableId,
+      String actingPrincipal);
+
+  /**
    * Function to update aclPolicy on a Table Resource identified by tableId in a given databaseId.
    *
    * @param databaseId

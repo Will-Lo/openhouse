@@ -97,6 +97,34 @@ public class UserTablesServiceImpl implements UserTablesService {
   }
 
   @Override
+  public void renameUserTable(
+      String fromDatabaseId, String fromTableId, String toDatabaseId, String toTableId) {
+    if (!htsJdbcRepository.existsById(
+        UserTableRowPrimaryKey.builder().databaseId(fromDatabaseId).tableId(fromTableId).build())) {
+      throw new NoSuchUserTableException(fromDatabaseId, fromTableId);
+    }
+    // Renames user table within the same database
+    try {
+      htsJdbcRepository.renameTableId(fromDatabaseId, fromTableId, toTableId);
+    } catch (CommitFailedException
+        | ObjectOptimisticLockingFailureException
+        | DataIntegrityViolationException e) {
+      throw new EntityConcurrentModificationException(
+          String.format(
+              "databaseId : %s, tableId : %s, version: %s %s",
+              fromDatabaseId,
+              fromTableId,
+              "The requested user table has been modified/created by other processes."),
+          UserTableRowPrimaryKey.builder()
+              .databaseId(fromDatabaseId)
+              .tableId(fromTableId)
+              .build()
+              .toString(),
+          e);
+    }
+  }
+
+  @Override
   public void deleteUserTable(String databaseId, String tableId) {
     if (!htsJdbcRepository.existsById(
         UserTableRowPrimaryKey.builder().databaseId(databaseId).tableId(tableId).build())) {
