@@ -185,6 +185,7 @@ public class HouseTableRepositoryImpl implements HouseTableRepository {
                     .block());
   }
 
+  @Override
   public void rename(
       String fromDatabaseId, String fromTableId, String toDatabaseId, String toTableId) {
     getHtsRetryTemplate(Arrays.asList(IllegalStateException.class))

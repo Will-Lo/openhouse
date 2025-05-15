@@ -213,8 +213,8 @@ public class TablesController {
       })
   @PatchMapping(
       value = {
-        "/v0/databases/{fromDatabaseId}/tables/{fromTableId}",
-        "/v1/databases/{fromDatabaseId}/tables/{fromTableId}"
+        "/v0/databases/{databaseId}/tables/{fromTableId}",
+        "/v1/databases/{databaseId}/tables/{fromTableId}"
       })
   public ResponseEntity<Void> renameTable(
       @Parameter(description = "Database ID of table to rename") @PathVariable

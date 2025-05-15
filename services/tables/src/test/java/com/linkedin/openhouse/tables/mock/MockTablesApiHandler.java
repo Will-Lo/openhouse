@@ -127,6 +127,21 @@ public class MockTablesApiHandler implements TablesApiHandler {
   }
 
   @Override
+  public ApiResponse<Void> renameTable(
+      String d1, String t1, String d2, String t2, String actingPrincipal) {
+    switch (d1) {
+      case "d204":
+        return ApiResponse.<Void>builder().httpStatus(HttpStatus.NO_CONTENT).build();
+      case "d400":
+        throw new RequestValidationFailureException();
+      case "d404":
+        throw new NoSuchUserTableException(d1, t1);
+      default:
+        return null;
+    }
+  }
+
+  @Override
   public ApiResponse<Void> updateAclPolicies(
       String databaseId,
       String tableId,
