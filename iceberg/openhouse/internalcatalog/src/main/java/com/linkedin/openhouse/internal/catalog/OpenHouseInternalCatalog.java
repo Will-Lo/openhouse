@@ -103,18 +103,20 @@ public class OpenHouseInternalCatalog extends BaseMetastoreCatalog {
     String tableLocation = loadTable(identifier).location();
     FileIO fileIO = resolveFileIO(identifier);
     log.debug("Dropping table {}, purge:{}", tableLocation, purge);
-    try {
-      houseTableRepository.deleteById(
-          HouseTablePrimaryKey.builder()
-              .databaseId(identifier.namespace().toString())
-              .tableId(identifier.name())
-              .build());
-    } catch (HouseTableRepositoryException houseTableRepositoryException) {
-      throw new RuntimeException(
-          String.format("The table %s cannot be dropped due to the server side error:", identifier),
-          houseTableRepositoryException);
-    }
+    HouseTablePrimaryKey tableToDeleteKey =
+        HouseTablePrimaryKey.builder()
+            .databaseId(identifier.namespace().toString())
+            .tableId(identifier.name())
+            .build();
     if (purge) {
+      try {
+        houseTableRepository.deleteById(tableToDeleteKey);
+      } catch (HouseTableRepositoryException houseTableRepositoryException) {
+        throw new RuntimeException(
+            String.format(
+                "The table %s cannot be dropped due to the server side error:", identifier),
+            houseTableRepositoryException);
+      }
       // Delete data and metadata files from storage.
       if (fileIO instanceof SupportsPrefixOperations) {
         log.debug("Deleting files for table {}", tableLocation);
@@ -125,6 +127,15 @@ public class OpenHouseInternalCatalog extends BaseMetastoreCatalog {
             tableLocation);
         throw new UnsupportedOperationException(
             "Drop table is supported only with a fileIO instance that SupportsPrefixOperations");
+      }
+    } else {
+      try {
+        houseTableRepository.softDeleteById(tableToDeleteKey);
+      } catch (HouseTableRepositoryException houseTableRepositoryException) {
+        throw new RuntimeException(
+            String.format(
+                "The table %s cannot be soft deleted due to the server side error:", identifier),
+            houseTableRepositoryException);
       }
     }
     return true;

@@ -193,7 +193,37 @@ public class TablesController {
       @Parameter(description = "Table ID", required = true) @PathVariable String tableId) {
 
     com.linkedin.openhouse.common.api.spec.ApiResponse<Void> apiResponse =
-        tablesApiHandler.deleteTable(databaseId, tableId, extractAuthenticatedUserPrincipal());
+        tablesApiHandler.deleteTable(
+            databaseId, tableId, true, extractAuthenticatedUserPrincipal());
+
+    return new ResponseEntity<>(
+        apiResponse.getResponseBody(), apiResponse.getHttpHeaders(), apiResponse.getHttpStatus());
+  }
+
+  @Operation(
+      summary = "DELETE Table",
+      description = "Deletes a table resource, optionally purging it from underlying storage",
+      tags = {"Table"})
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "204", description = "Table DELETE: NO_CONTENT"),
+        @ApiResponse(responseCode = "400", description = "Table DELETE: BAD_REQUEST"),
+        @ApiResponse(responseCode = "401", description = "Table DELETE: UNAUTHORIZED"),
+        @ApiResponse(responseCode = "403", description = "Table DELETE: FORBIDDEN"),
+        @ApiResponse(responseCode = "404", description = "Table DELETE: TBL_DB_NOT_FOUND")
+      })
+  @DeleteMapping(
+      value = {
+        "/v2/databases/{databaseId}/tables/{tableId}",
+      })
+  public ResponseEntity<Void> deleteTable(
+      @Parameter(description = "Database ID", required = true) @PathVariable String databaseId,
+      @Parameter(description = "Table ID", required = true) @PathVariable String tableId,
+      @RequestParam(value = "purge") Boolean purge) {
+
+    com.linkedin.openhouse.common.api.spec.ApiResponse<Void> apiResponse =
+        tablesApiHandler.deleteTable(
+            databaseId, tableId, purge, extractAuthenticatedUserPrincipal());
 
     return new ResponseEntity<>(
         apiResponse.getResponseBody(), apiResponse.getHttpHeaders(), apiResponse.getHttpStatus());

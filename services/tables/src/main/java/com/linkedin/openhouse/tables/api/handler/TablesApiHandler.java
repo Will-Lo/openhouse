@@ -68,7 +68,8 @@ public interface TablesApiHandler {
    * @param actingPrincipal
    * @return empty body on successful delete
    */
-  ApiResponse<Void> deleteTable(String databaseId, String tableId, String actingPrincipal);
+  ApiResponse<Void> deleteTable(
+      String databaseId, String tableId, boolean isPurge, String actingPrincipal);
 
   /**
    * Function to Rename a Table Resource identified by fromTableId in a given fromDatabaseId to
