@@ -84,7 +84,8 @@ class SnapshotInspectorTest {
         TableMetadata.buildFrom(NO_SNAPSHOTS_METADATA)
             .setBranchSnapshot(testSnapshots.get(testSnapshots.size() - 1), SnapshotRef.MAIN_BRANCH)
             .build();
-    Assertions.assertDoesNotThrow(
+    Assertions.assertThrows(
+        Exception.class,
         () ->
             snapshotInspector.validateSnapshotsUpdate(
                 metadataWithSnapshots, testSnapshots, Collections.emptyList()));
